@@ -3,12 +3,13 @@ import { UserService } from './user.service'
 import { User } from './schema'
 import { CreateUserParam } from './typings'
 import { UserDto } from './dto'
+import session from 'express-session'
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get()
+  @Get('')
   findAll(@Session() session: Record<string, any>) {
     session.visits = session.visits ? session.visits + 1 : 1
     session.userId =
@@ -16,12 +17,36 @@ export class UserController {
     return session
   }
 
-  @Post('')
-  createUser(
+  @Get('profile')
+  getUserProfile(
     @Session() session: Record<string, any>,
     @Param() params: CreateUserParam,
     @Body() body: UserDto,
   ): Promise<User> {
-    return this.userService.createUser(params, body)
+    return this.userService.getUserProfile(params, body, session)
+  }
+
+  @Post('login')
+  loginUser(
+    @Session() session: Record<string, any>,
+    @Param() params: CreateUserParam,
+    @Body() body: UserDto,
+  ): Promise<User> {
+    return this.userService.loginUser(params, body)
+  }
+
+  @Post('')
+  async createUser(
+    @Session() session: Record<string, any>,
+    @Param() params: CreateUserParam,
+    @Body() body: UserDto,
+  ): Promise<User> {
+    const user = await this.userService.createUser(params, body, session)
+    return this.setSessionAndReturnUser(session, user)
+  }
+
+  setSessionAndReturnUser(session: Record<string, any>, user: User): User {
+    session.userId = user.id ?? ''
+    return user
   }
 }

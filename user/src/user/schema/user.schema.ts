@@ -7,7 +7,7 @@ export type UserDocument = User & Document
 @Schema()
 export class User extends CommonSchema {
   @Prop()
-  id: number
+  id: string
 
   @Prop({ required: true })
   firstName: string

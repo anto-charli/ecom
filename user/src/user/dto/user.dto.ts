@@ -1,18 +1,20 @@
 import { IsNotEmpty } from 'class-validator'
-export class UserDto {
-  id: number
+
+export class LoginDto {
+  @IsNotEmpty()
+  email: string
+
+  @IsNotEmpty()
+  password: string
+}
+export class UserDto extends LoginDto {
+  id: string
 
   @IsNotEmpty()
   firstName: string
 
   @IsNotEmpty()
   lastName: string
-
-  @IsNotEmpty()
-  email: string
-
-  @IsNotEmpty()
-  password: string
 
   @IsNotEmpty()
   phone: string
