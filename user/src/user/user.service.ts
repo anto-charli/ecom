@@ -36,24 +36,24 @@ export class UserService {
     let response = new User()
     let responseMessage = 'success'
 
-    console.log(' session?.userId ', session?.userId)
-
-    try {
-      const existingUser = await this.userModel
-        .findOne({ email: newUser?.email })
-        .exec()
-      if (
-        !existingUser ||
-        (existingUser && existingUser?.password != newUser.password)
-      ) {
-        response.error = 'Please check the user name and password'
-        response.responseMessage = 'failure'
-      } else {
-        response = existingUser
+    const userId = session?.userId
+    if (userId) {
+      try {
+        const user = await this.userModel.findOne({ id: userId }).exec()
+        if (user) {
+          response = user
+        } else {
+          response.error = 'User not found'
+          response.responseMessage = 'failure'
+        }
+      } catch (e) {
+        responseMessage = e
+        console.log('createUser exception ', e)
       }
-    } catch (e) {
-      responseMessage = e
-      console.log('createUser exception ', e)
+    } else {
+      response.error = 'User not found'
+      responseMessage = 'failure'
+      console.log('user id ', userId)
     }
 
     const user = this.constructUser({ user: response })
